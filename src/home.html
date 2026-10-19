@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>FloatHUD</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #1c1c1e;
+      color: #e5e5ea;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px 0;
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #ffd60a, #ff9f0a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #000;
+      font-size: 16px;
+    }
+    .title-wrap h1 { font-size: 17px; font-weight: 600; line-height: 1.2; }
+    .title-wrap .sub { font-size: 11px; color: #8e8e93; }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 14px 20px 0;
+      border-bottom: 1px solid #2c2c2e;
+    }
+    .tab {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #8e8e93;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: #e5e5ea; background: #2c2c2e; }
+    .tab.active {
+      color: #ffd60a;
+      border-bottom-color: #ffd60a;
+      background: transparent;
+    }
+
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px 20px;
+    }
+    section {
+      background: #2c2c2e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    section h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffd60a;
+      margin-bottom: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12px;
+      color: #aeaeb2;
+    }
+    input, select, textarea {
+      background: #1c1c1e;
+      color: #e5e5ea;
+      border: 1px solid #3a3a3c;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #ffd60a; }
+    input[type="color"] { padding: 2px; height: 36px; cursor: pointer; }
+    input[type="range"] { padding: 0; height: 28px; }
+    textarea { resize: vertical; min-height: 60px; font-family: Menlo, monospace; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .check {
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #e5e5ea;
+    }
+    .check input { width: 16px; height: 16px; }
+    .val { color: #ffd60a; font-variant-numeric: tabular-nums; min-width: 36px; }
+    .widget {
+      border: 1px solid #3a3a3c;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #242426;
+    }
+    .widget-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .widget-head strong { font-size: 13px; color: #fff; }
+    button.action {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary { background: #ffd60a; color: #000; }
+    .btn-primary:hover { filter: brightness(1.05); }
+    .btn-ghost { background: #3a3a3c; color: #e5e5ea; }
+    .btn-ghost:hover { background: #48484a; }
+    .btn-danger { background: #3a2020; color: #ff6961; }
+    .btn-danger:hover { background: #4a2828; }
+    .footer {
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(transparent, #1c1c1e 30%);
+      padding: 16px 20px 8px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .hint { font-size: 11px; color: #636366; margin-top: 6px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #3a3a3c;
+      color: #ffd60a;
+    }
+    .badge.pro { background: #248a3d; color: #fff; }
+    .lic-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .lic-row input { flex: 1; }
+    .toast {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #248a3d;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+    .toast.err { background: #c93400; }
+
+    /* About */
+    .about-hero {
+      text-align: center;
+      padding: 28px 16px 18px;
+    }
+    .about-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffd60a, #ff9f0a);
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: #000;
+    }
+    .about-hero h2 { font-size: 20px; color: #fff; margin-bottom: 4px; }
+    .about-hero p { color: #8e8e93; font-size: 13px; }
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #3a3a3c;
+      font-size: 13px;
+    }
+    .kv:last-child { border-bottom: none; }
+    .kv .k { color: #8e8e93; }
+    .kv .v { color: #e5e5ea; text-align: right; word-break: break-all; max-width: 60%; }
+    .about-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .pane { display: none; }
+    .pane.active { display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">F</div>
+    <div class="title-wrap">
+      <h1>FloatHUD</h1>
+      <div class="sub">置顶悬浮 · 数据源可配</div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="settings">设置</button>
+    <button class="tab" data-tab="about">关于</button>
+  </nav>
+
+  <main>
+    <!-- 设置 -->
+    <div class="pane active" id="pane-settings">
+      <section>
+        <h2>全局外观</h2>
+        <div class="grid">
+          <label>背景透明度
+            <div class="row">
+              <input type="range" id="backgroundOpacity" min="0" max="1" step="0.05" />
+              <span class="val" id="backgroundOpacityVal">0.85</span>
+            </div>
+          </label>
+          <label>全局字体
+            <input type="text" id="fontFamily" placeholder="如 PingFang SC, sans-serif" />
+          </label>
+          <label>默认刷新间隔（秒）
+            <input type="number" id="refreshSeconds" min="1" />
+          </label>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <label class="check"><input type="checkbox" id="clickThrough" /> 鼠标穿透（点击落到下层）</label>
+          <label class="check"><input type="checkbox" id="lockPosition" /> 固定位置（不可拖动）</label>
+        </div>
+        <div class="hint">窗口位置不用配——拖到哪，下次启动就在哪。</div>
+      </section>
+
+      <section>
+        <h2>显示区（容器内可加多个，内容支持 HTML / Python / Shell）</h2>
+        <div class="row" id="editionBar" style="margin-bottom:12px">
+          <span class="badge" id="editionBadge">免费版</span>
+          <span class="hint" id="editionHint">免费版仅 1 个显示区</span>
+          <button class="action btn-ghost" id="goPro">解锁完整版</button>
+        </div>
+        <div id="areasList"></div>
+        <button class="action btn-ghost" id="addArea">＋ 添加显示区</button>
+      </section>
+
+      <div class="footer">
+        <button class="action btn-ghost" id="reload">放弃更改</button>
+        <button class="action btn-primary" id="save">保存</button>
+      </div>
+    </div>
+
+    <!-- 关于 -->
+    <div class="pane" id="pane-about">
+      <section>
+        <div class="about-hero">
+          <div class="about-logo">F</div>
+          <h2>FloatHUD</h2>
+          <p>跨平台置顶悬浮 HUD · zClock 式随手一瞥</p>
+        </div>
+        <div class="kv"><span class="k">版本</span><span class="v" id="aboutVersion">0.1.0</span></div>
+        <div class="kv"><span class="k">平台</span><span class="v" id="aboutPlatform">—</span></div>
+        <div class="kv"><span class="k">配置文件</span><span class="v" id="aboutConfig">—</span></div>
+        <div class="kv"><span class="k">配置目录</span><span class="v" id="aboutConfigDir">—</span></div>
+        <div class="kv"><span class="k">版本类型</span><span class="v" id="aboutEdition">—</span></div>
+        <div class="lic-row">
+          <input id="licenseKey" placeholder="完整版许可证，如 FH-PRO-XXXX-XXXX-XXXX" />
+          <button class="action btn-primary" id="activateBtn">激活</button>
+          <button class="action btn-ghost" id="deactivateBtn">注销</button>
+        </div>
+        <div class="hint">免费版限 1 个显示区；完整版不限数量与排版。</div>
+        <div class="about-actions">
+          <button class="action btn-primary" id="aboutOpenConfig">打开配置文件</button>
+          <button class="action btn-ghost" id="aboutOpenDir">打开配置目录</button>
+        </div>
+      </section>
+      <section>
+        <h2>功能</h2>
+        <div class="kv"><span class="k">数据源</span><span class="v">http（JSON + 模板）/ script（命令）</span></div>
+        <div class="kv"><span class="k">置顶</span><span class="v">压在普通窗口与全屏应用之上</span></div>
+        <div class="kv"><span class="k">交互</span><span class="v">拖动、鼠标穿透、位置记忆</span></div>
+        <div class="kv"><span class="k">刷新</span><span class="v">每行独立间隔，配置热更新</span></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <script src="./home.js"></script>
+</body>
+</html>

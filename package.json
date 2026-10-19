@@ -1,0 +1,49 @@
+{
+  "name": "float-hud",
+  "version": "0.1.0",
+  "description": "Cross-platform always-on-top HUD with configurable data sources",
+  "license": "GPL-3.0",
+  "author": "zhangbro",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack:mac": "electron-builder --mac",
+    "pack:win": "electron-builder --win",
+    "pack:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "local.float-hud",
+    "productName": "FloatHUD",
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "config.example.json",
+      "LICENSE"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility"
+    }
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  }
+}

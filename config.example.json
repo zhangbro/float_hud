@@ -1,0 +1,31 @@
+{
+  "opacity": 0.88,
+  "backgroundOpacity": 0.88,
+  "fontFamily": "PingFang SC, -apple-system, sans-serif",
+  "clickThrough": false,
+  "lockPosition": false,
+  "refreshSeconds": 30,
+  "areas": [
+    {
+      "name": "HTML Demo",
+      "type": "html",
+      "html": "<div style=\"\n  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;\n  min-width:220px;\n  padding:2px 4px;\n\">\n  <div style=\"display:flex;align-items:center;gap:10px;\">\n    <div style=\"\n      width:42px;height:42px;border-radius:12px;\n      background:linear-gradient(135deg,#FFD60A,#FF9F0A);\n      display:flex;align-items:center;justify-content:center;\n      font-size:20px;font-weight:800;color:#000;\n    \">M</div>\n    <div>\n      <div style=\"font-size:15px;font-weight:700;color:#fff;line-height:1.2\">\n        FloatHUD\n      </div>\n      <div style=\"font-size:11px;color:#8E8E93;margin-top:2px\">\n        HTML 显示区 Demo\n      </div>\n    </div>\n  </div>\n\n  <div style=\"\n    margin-top:10px;\n    display:grid;grid-template-columns:1fr 1fr;gap:8px;\n  \">\n    <div style=\"\n      background:rgba(255,255,255,0.08);\n      border-radius:10px;padding:8px 10px;\n    \">\n      <div style=\"font-size:10px;color:#8E8E93\">已用</div>\n      <div style=\"font-size:18px;font-weight:700;color:#FFD60A\">615.6<span style=\"font-size:11px;color:#8E8E93\">亿</span></div>\n    </div>\n    <div style=\"\n      background:rgba(255,255,255,0.08);\n      border-radius:10px;padding:8px 10px;\n    \">\n      <div style=\"font-size:10px;color:#8E8E93\">占比</div>\n      <div style=\"font-size:18px;font-weight:700;color:#5AC8FA\">13.5<span style=\"font-size:11px;color:#8E8E93\">%</span></div>\n    </div>\n  </div>\n\n  <div style=\"margin-top:10px\">\n    <div style=\"display:flex;justify-content:space-between;font-size:11px;color:#8E8E93;margin-bottom:4px\">\n      <span>进度</span><span>4560 亿</span>\n    </div>\n    <div style=\"\n      height:6px;border-radius:99px;background:rgba(255,255,255,0.12);overflow:hidden;\n    \">\n      <div style=\"height:100%;width:13.5%;border-radius:99px;background:linear-gradient(90deg,#FFD60A,#FF9F0A)\"></div>\n    </div>\n  </div>\n</div>\n",
+      "style": {
+        "padding": 10,
+        "borderRadius": 12,
+        "background": "rgba(28,28,30,0.55)"
+      }
+    },
+    {
+      "name": "时钟",
+      "type": "script",
+      "command": "date \"+<div style='color:#FFD60A;font-size:28px;font-weight:700'>%H:%M:%S</div>\"",
+      "intervalSeconds": 1,
+      "style": {
+        "padding": 4,
+        "borderRadius": 8,
+        "background": "transparent"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+/tmp/
+.env
+.env.*
+*.local
+
+# 构建产物 / 安装包
+release/
+out/
+*.dmg
+*.zip
+*.AppImage
+*.exe
+*.blockmap
+site/downloads/

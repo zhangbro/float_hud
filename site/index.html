@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FloatHUD — 置顶悬浮 · 随手一瞥</title>
+<meta name="description" content="跨平台置顶悬浮 HUD。自定义显示区，HTML / Python / Shell 随便写，压在全屏之上。" />
+<style>
+  :root {
+    --bg: #0B0B0D;
+    --surface: #161618;
+    --surface-2: #1E1E22;
+    --ink: #F5F5F7;
+    --muted: #8E8E93;
+    --line: #2A2A2E;
+    --accent: #FFD60A;
+    --accent-2: #5AC8FA;
+    --green: #32D74B;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* nav */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(11,11,13,0.82);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 17px;
+  }
+  .logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, #FFD60A, #FF9F0A);
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 800; color: #000;
+  }
+  .nav-links { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 18px; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    border: 1px solid transparent; cursor: pointer;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+
+  /* hero */
+  .hero {
+    padding: 88px 0 72px;
+    display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--accent);
+    background: rgba(255,214,10,0.1);
+    border: 1px solid rgba(255,214,10,0.22);
+    padding: 5px 12px; border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: 56px; line-height: 1.12; letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+  h1 .grad {
+    background: linear-gradient(90deg, #FFD60A, #FF9F0A 55%, #5AC8FA);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lead {
+    margin: 20px 0 28px;
+    font-size: 18px; color: var(--muted); max-width: 460px;
+  }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta {
+    margin-top: 18px; font-size: 12px; color: var(--muted);
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+
+  /* product mock */
+  .mock-wrap { display: flex; justify-content: center; }
+  .mock {
+    width: 340px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  }
+  .hud {
+    background: #121214;
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .hud-clock {
+    font-size: 34px; font-weight: 800; color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .hud-row { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat {
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 12px 14px;
+  }
+  .stat .k { font-size: 11px; color: var(--muted); }
+  .stat .v { font-size: 24px; font-weight: 700; margin-top: 2px; }
+  .bar {
+    margin-top: 14px;
+    height: 8px; border-radius: 99px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+  .bar > i {
+    display: block; height: 100%; width: 38%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #FFD60A, #FF9F0A);
+  }
+  .mock-label {
+    margin-top: 12px; text-align: center;
+    font-size: 12px; color: var(--muted);
+  }
+
+  /* sections */
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  .sec-title {
+    font-size: 32px; font-weight: 800; letter-spacing: -0.015em;
+    margin-bottom: 12px;
+  }
+  .sec-sub { color: var(--muted); margin-bottom: 36px; max-width: 560px; }
+
+  .grid-3 {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px;
+  }
+  .card .ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 18px; margin-bottom: 14px;
+    background: rgba(255,214,10,0.12); color: var(--accent);
+  }
+  .card h3 { font-size: 16px; margin-bottom: 6px; }
+  .card p { font-size: 14px; color: var(--muted); }
+
+  /* code */
+  .code {
+    margin-top: 18px;
+    background: #0E0E10;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px;
+    color: #D1D1D6;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+  .code .c { color: #6E6E73; }
+  .code .s { color: #A8E10C; }
+  .code .p { color: var(--accent-2); }
+
+  /* pricing */
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .plan {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px;
+    position: relative;
+  }
+  .plan.pro {
+    border-color: rgba(255,214,10,0.45);
+    background: linear-gradient(180deg, rgba(255,214,10,0.08), transparent 40%), var(--surface);
+  }
+  .plan .tag {
+    position: absolute; top: 16px; right: 16px;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--accent); color: #000;
+  }
+  .plan h3 { font-size: 18px; }
+  .price { font-size: 36px; font-weight: 800; margin: 10px 0 4px; }
+  .price span { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .plan ul { list-style: none; margin: 18px 0 22px; }
+  .plan li {
+    padding: 8px 0; font-size: 14px; color: var(--muted);
+    border-top: 1px solid var(--line);
+    display: flex; gap: 10px;
+  }
+  .plan li::before { content: "✓"; color: var(--green); font-weight: 700; }
+
+  /* download */
+  .dl {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px;
+  }
+  .dl a {
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 18px; min-width: 160px;
+  }
+  .dl a:hover { border-color: var(--accent); }
+  .dl b { font-size: 14px; }
+  .dl small { color: var(--muted); font-size: 12px; }
+
+  /* faq */
+  details {
+    border-top: 1px solid var(--line);
+    padding: 18px 0;
+  }
+  summary {
+    cursor: pointer; font-weight: 600; font-size: 15px;
+    list-style: none;
+    display: flex; justify-content: space-between; gap: 12px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--muted); }
+  details[open] summary::after { content: "–"; }
+  details p { margin-top: 10px; color: var(--muted); font-size: 14px; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 36px 0 48px;
+    color: var(--muted); font-size: 13px;
+  }
+  .foot-in { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-top: 56px; }
+    h1 { font-size: 40px; }
+    .grid-3, .plans { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="brand" href="#"><span class="logo">F</span> FloatHUD</a>
+    <div class="nav-links">
+      <a href="#features">功能</a>
+      <a href="#dev">自定义</a>
+      <a href="#pricing">版本</a>
+      <a href="#download">下载</a>
+      <a href="#faq">常见问题</a>
+    </div>
+    <a class="btn btn-primary" href="#download">下载 macOS</a>
+  </div>
+</nav>
+
+<header class="wrap hero">
+  <div>
+    <div class="eyebrow">◆ 桌面置顶 · 三端同源 · 随手一瞥</div>
+    <h1>随手一瞥的<br /><span class="grad">悬浮数据台</span></h1>
+    <p class="lead">
+      把时钟、用量、监控、接口数据钉在屏幕一角。
+      压在全屏应用之上，内容用 HTML / Python / Shell 随便写。
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#download">免费下载</a>
+      <a class="btn btn-ghost" href="#pricing">看看完整版</a>
+    </div>
+    <div class="meta">
+      <span>macOS 12+</span>
+      <span>Windows / Linux 架构就绪</span>
+      <span>约 90MB</span>
+    </div>
+  </div>
+
+  <div class="mock-wrap">
+    <div class="mock">
+      <div class="hud">
+        <div class="hud-clock">15:20:24</div>
+        <div class="hud-row">
+          <div class="stat"><div class="k">已用</div><div class="v" style="color:#FFD60A">615.6<span style="font-size:12px;color:#8E8E93">亿</span></div></div>
+          <div class="stat"><div class="k">占比</div><div class="v" style="color:#5AC8FA">13.5<span style="font-size:12px;color:#8E8E93">%</span></div></div>
+        </div>
+        <div class="bar"><i></i></div>
+      </div>
+      <div class="mock-label">HTML 显示区 · 实时刷新 · 可拖动 / 可穿透</div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <h2 class="sec-title">为「看一眼」而生</h2>
+    <p class="sec-sub">不是仪表盘，不是后台。是钉在屏幕角落、永远在那儿的那一小块信息。</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="ico">▣</div>
+        <h3>压在全屏之上</h3>
+        <p>写代码、开会、打游戏，悬浮窗都在。点击穿透后完全不挡操作。</p>
+      </div>
+      <div class="card">
+        <div class="ico">⚡</div>
+        <h3>内容随便写</h3>
+        <p>HTML、Python、Shell、HTTP 接口——stdout 就是你的显示内容。</p>
+      </div>
+      <div class="card">
+        <div class="ico">⤡</div>
+        <h3>随心调整</h3>
+        <p>拖动换位置，右下角拉大小，字体/透明度/穿透一键切换，位置自动记住。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dev">
+  <div class="wrap">
+    <h2 class="sec-title">三行命令，一个显示区</h2>
+    <p class="sec-sub">没有插件市场，没有配置向导。写脚本，输出 HTML，结束。</p>
+    <div class="code">
+      <div><span class="c"># config.json —— 一个显示区</span></div>
+      <div>{</div>
+      <div>&nbsp;&nbsp;<span class="p">"type"</span>: <span class="s">"script"</span>,</div>
+      <div>&nbsp;&nbsp;<span class="p">"command"</span>: <span class="s">"python3 ~/bin/cpu.py"</span>,</div>
+      <div>&nbsp;&nbsp;<span class="p">"intervalSeconds"</span>: 5</div>
+      <div>}</div>
+      <div>&nbsp;</div>
+      <div><span class="c"># cpu.py —— 输出即所见</span></div>
+      <div>print(<span class="s">f"&lt;div style='color:#FFD60A;font-size:28px'&gt;{load}%&lt;/div&gt;"</span>)</div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2 class="sec-title">免费起步，按需升级</h2>
+    <p class="sec-sub">个人随时能用；要把屏幕变成工作台，再上完整版。</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>免费版</h3>
+        <div class="price">￥0 <span>永久</span></div>
+        <ul>
+          <li>1 个显示区</li>
+          <li>置顶 / 全屏之上</li>
+          <li>HTML · 脚本 · HTTP</li>
+          <li>拖动、穿透、位置记忆</li>
+        </ul>
+        <a class="btn btn-ghost" href="#download">直接下载</a>
+      </div>
+      <div class="plan pro">
+        <div class="tag">推荐</div>
+        <h3>完整版</h3>
+        <div class="price">￥29 <span>买断 · 一台机器</span></div>
+        <ul>
+          <li>显示区数量不限</li>
+          <li>自由排版与尺寸</li>
+          <li>免费版全部能力</li>
+          <li>后续小版本免费更新</li>
+        </ul>
+        <a class="btn btn-primary" href="#download">购买激活码</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <h2 class="sec-title">下载</h2>
+    <p class="sec-sub">macOS 现已可用；Windows / Linux 同源构建，陆续发布。</p>
+    <div class="dl">
+      <a href="/downloads/FloatHUD-0.1.0-arm64.dmg" download><b>macOS · Apple Silicon</b><small>FloatHUD-0.1.0-arm64.dmg · 94MB</small></a>
+      <a href="#" onclick="return false"><b>macOS · Intel</b><small>即将发布</small></a>
+      <a href="#" onclick="return false"><b>Windows</b><small>即将发布</small></a>
+      <a href="#" onclick="return false"><b>Linux · AppImage</b><small>即将发布</small></a>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2 class="sec-title">常见问题</h2>
+    <details>
+      <summary>激活码如何绑定？</summary>
+      <p>购买后你会收到形如 <code>FH-PRO-XXXX-XXXX-XXXX</code> 的激活码，在应用「关于」页粘贴激活即可。支持在本机自助注销。</p>
+    </details>
+    <details>
+      <summary>可以自己写显示内容吗？</summary>
+      <p>可以。只要能打印到 stdout 的语言都行；也可以直接内嵌 HTML 片段或请求 HTTP 接口。</p>
+    </details>
+    <details>
+      <summary>会收集我的数据吗？</summary>
+      <p>不会。FloatHUD 不联网上报任何信息；数据源是你自己配置的命令或接口。</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>© 2026 FloatHUD</div>
+    <div>不是小米官方产品 · zClock 式随手一瞥</div>
+  </div>
+</footer>
+
+</body>
+</html>

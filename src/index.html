@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>FloatHUD</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: transparent;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+    }
+    #card {
+      position: relative;
+      margin: 0;
+      width: fit-content;
+      min-width: 120px;
+      height: fit-content;
+      min-height: 48px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.88);
+      cursor: grab;
+      box-shadow: 0 0 0 0 transparent;
+      transition: box-shadow 0.12s ease;
+    }
+    #card.hover {
+      box-shadow: 0 0 0 1.5px rgba(255, 214, 10, 0.55);
+    }
+    #areas {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .area {
+      position: relative;
+      max-width: 640px;
+      cursor: grab;
+      box-shadow: 0 0 0 0 transparent;
+      transition: box-shadow 0.12s ease;
+    }
+    .area.hover {
+      box-shadow: 0 0 0 1.5px rgba(90, 200, 250, 0.75);
+    }
+    .area.err {
+      box-shadow: 0 0 0 1px rgba(255, 105, 97, 0.5);
+    }
+    #sizeTip {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      pointer-events: none;
+      background: rgba(28, 28, 30, 0.92);
+      color: #ffd60a;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+    #sizeTip.show { display: block; }
+  </style>
+</head>
+<body>
+  <div id="card">
+    <div id="areas"><div class="area">加载中…</div></div>
+  </div>
+  <div id="sizeTip"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
